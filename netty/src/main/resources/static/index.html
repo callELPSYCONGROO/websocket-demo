@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>WebSocket Chat</title>
+</head>
+<body>
+<script type="text/javascript">
+    //TODO 请求路径
+    // const websocket_url = "ws://notify.dev.bicitech.cn/ws?token=fsd31rFDJH92ieouud130dF021jasd";
+    // const websocket_url = "ws://overload.bicitech.net/ws?token=fsd31rFDJH92ieouud130dF021jasd";
+    const websocket_url = "wss://localhost:29999/ws?token=fsd31rFDJH92ieouud130dF021jasd";
+    let socket;
+    if (!window.WebSocket) {
+        window.WebSocket = window.MozWebSocket;
+    }
+    if (window.WebSocket) {
+        socket = new WebSocket(websocket_url);
+		socket.onmessage = function(event) {
+			console.log("收到消息：", event.data);
+            let ta = document.getElementById('responseText');
+			ta.value = ta.value + '\n' + event.data
+		};
+		socket.onopen = function(event) {
+            let ta = document.getElementById('responseText');
+			ta.value = "连接开启!";
+		};
+		socket.onclose = function(event) {
+            let ta = document.getElementById('responseText');
+			ta.value = ta.value + "\n连接被关闭";
+		};
+	} else {
+		alert("你的浏览器不支持 WebSocket！");
+	}
+
+	function send(message) {
+		if (!window.WebSocket) {
+			return;
+		}
+		if (socket.readyState === WebSocket.OPEN) {
+			socket.send(message);
+		} else {
+			alert("连接没有开启.");
+		}
+	}
+
+	function reconnect() {
+		if (!socket.readyState || socket.readyState !== WebSocket.CLOSED) {
+			alert("连接未关闭，请稍后重试");
+			return;
+		}
+		if (window.WebSocket) {
+			socket = new WebSocket(websocket_url);
+			socket.onmessage = function(socket, event) {
+				console.log("收到消息：", event.data);
+                let ta = document.getElementById('responseText');
+				ta.value = ta.value + '\n' + event.data
+			};
+			socket.onopen = function(event) {
+                let ta = document.getElementById('responseText');
+				ta.value = "连接开启!";
+			};
+			socket.onclose = function(event) {
+                let ta = document.getElementById('responseText');
+				ta.value = ta.value + "\n连接被关闭";
+			};
+		} else {
+			alert("你的浏览器不支持 WebSocket！");
+		}
+	}
+</script>
+<form onsubmit="return false;">
+	<h3>WebSocket 聊天室：</h3>
+	<textarea id="responseText" style="width: 500px; height: 300px;"></textarea>
+	<br>
+	<input type="text" name="message"  style="width: 300px" placeholder="输入聊天内容">
+	<input type="button" value="发送消息" onclick="send(this.form.message.value)">
+	<input type="button" onclick="document.getElementById('responseText').value=''" value="清空聊天记录">
+	<input type="button" onclick="reconnect()" value="重新连接">
+</form>
+<br>
+<br>
+</body>
+</html>
