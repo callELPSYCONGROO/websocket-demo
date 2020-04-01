@@ -6,19 +6,18 @@
 </head>
 <body>
 <script type="text/javascript">
-    //TODO 请求路径
-    // const websocket_url = "ws://notify.dev.bicitech.cn/ws?token=fsd31rFDJH92ieouud130dF021jasd";
-    // const websocket_url = "ws://overload.bicitech.net/ws?token=fsd31rFDJH92ieouud130dF021jasd";
-    const websocket_url = "wss://localhost:29999/ws?token=fsd31rFDJH92ieouud130dF021jasd";
-    let socket;
-    if (!window.WebSocket) {
-        window.WebSocket = window.MozWebSocket;
-    }
-    if (window.WebSocket) {
-        socket = new WebSocket(websocket_url);
-		socket.onmessage = function(event) {
+	//TODO 请求路径
+	//TODO 这里TOKEN没有在服务端完成，随便一个即可
+	const websocket_url = "ws://localhost:29999/ws?token=fsd31rFDJH92ieouud130dF021jasd";
+	let socket;
+	if (!window.WebSocket) {
+		window.WebSocket = window.MozWebSocket;
+	}
+	if (window.WebSocket) {
+		socket = new WebSocket(websocket_url);
+		socket.onmessage = function (event) {
 			console.log("收到消息：", event.data);
-            let ta = document.getElementById('responseText');
+			let ta = document.getElementById('responseText');
 			ta.value = ta.value + '\n' + event.data
 		};
 		socket.onopen = function(event) {

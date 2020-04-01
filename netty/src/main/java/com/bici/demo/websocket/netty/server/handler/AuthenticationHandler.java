@@ -35,6 +35,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<FullHttpR
         log.debug("获取到的uri：" + msg.uri());
         IpPort ipPort = address2IpPort(group);
         PathParam pathParam = uri2Obj(msg.uri());
+        //TODO 校验TOKEN
 
         ctx.channel().attr(AttributeKey.valueOf("group")).set(ipPort.getIp());
         ctx.channel().attr(AttributeKey.valueOf("name")).set(getRandomJianHan(ipPort.getPort()));

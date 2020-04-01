@@ -2,7 +2,6 @@ package com.bici.demo.websocket.netty.server;
 
 import com.bici.demo.websocket.netty.server.handler.AuthenticationHandler;
 import com.bici.demo.websocket.netty.server.handler.MessageHandler;
-import com.bici.demo.websocket.netty.server.handler.WebSocketSslHandlerBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -54,14 +53,10 @@ public class NettyWebSocketServer implements ApplicationRunner {
 
     private final AuthenticationHandler authenticationHandler;
 
-    private final WebSocketSslHandlerBuilder webSocketSslHandlerBuilder;
-
     @Autowired
     public NettyWebSocketServer(MessageHandler messageHandler,
-                                WebSocketSslHandlerBuilder webSocketSslHandlerBuilder,
                                 AuthenticationHandler authenticationHandler) {
         this.messageHandler = messageHandler;
-        this.webSocketSslHandlerBuilder = webSocketSslHandlerBuilder;
         this.authenticationHandler = authenticationHandler;
     }
 
@@ -70,6 +65,7 @@ public class NettyWebSocketServer implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup(bossThread);
         EventLoopGroup workGroup = new NioEventLoopGroup(workThread);
+        log.info("开始实例化ServerBootstrap");
         ServerBootstrap serverBootstrap = new ServerBootstrap()
                 .group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
@@ -78,8 +74,6 @@ public class NettyWebSocketServer implements ApplicationRunner {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
                         ch.pipeline()
-                                // ssl加密处理
-                                .addLast("webSocketSslHandler", webSocketSslHandlerBuilder.build())
                                 // 将请求和响应消息解码为HTTP协议消息
                                 .addLast(new HttpServerCodec())
                                 // 向客户端发送HTML5文件，大文件支持
@@ -97,6 +91,7 @@ public class NettyWebSocketServer implements ApplicationRunner {
                     }
                 })
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
+        log.info("ServerBootstrap实例化完成");
         try {
             log.info("WebSocket服务端开始启动");
             Channel channel = serverBootstrap.bind(port).sync().channel();
